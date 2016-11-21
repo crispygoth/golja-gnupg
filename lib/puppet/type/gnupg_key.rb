@@ -150,4 +150,10 @@ Puppet::Type.newtype(:gnupg_key) do
 
     defaultto :public
   end
+
+  newparam(:gnupg_home) do
+    desc "Path to the gnupg home directory, overrides the default of ~/.gnupg"
+
+    defaultto '~/.gnupg'
+  end
 end
