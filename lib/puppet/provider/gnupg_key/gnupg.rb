@@ -54,9 +54,9 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
 
   def add_key_from_key_server
     if resource[:proxy].nil? or resource[:proxy].empty?
-      command = "gpg --homedir #{resource[:gnupg_home]} --keyserver #{resource[:key_server]} --recv-keys #{resource[:key_id]}"
+      command = "gpg --no-tty --homedir #{resource[:gnupg_home]} --keyserver #{resource[:key_server]} --recv-keys #{resource[:key_id]}"
     else
-      command = "gpg --homedir #{resource[:gnupg_home]} --keyserver #{resource[:key_server]} --keyserver-options http-proxy=#{resource[:proxy]} --recv-keys #{resource[:key_id]}"
+      command = "gpg --no-tty --homedir #{resource[:gnupg_home]} --keyserver #{resource[:key_server]} --keyserver-options http-proxy=#{resource[:proxy]} --recv-keys #{resource[:key_id]}"
     end
     begin
       output = Puppet::Util::Execution.execute(command,  :uid => user_id, :failonfail => true)
@@ -75,7 +75,7 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
 
   def add_key_from_key_content
     path = create_temporary_file(user_id, resource[:key_content])
-    command = "gpg --homedir #{resource[:gnupg_home]} --import #{path}"
+    command = "gpg --no-tty --homedir #{resource[:gnupg_home]} --import #{path}"
     begin
       output = Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
     rescue Puppet::ExecutionFailure => e
@@ -85,7 +85,7 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
 
   def add_key_at_path
     if File.file?(resource[:key_source])
-      command = "gpg --homedir #{resource[:gnupg_home]} --import #{resource[:key_source]}"
+      command = "gpg --no-tty --homedir #{resource[:gnupg_home]} --import #{resource[:key_source]}"
       begin
         output = Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
       rescue Puppet::ExecutionFailure => e
@@ -100,12 +100,12 @@ Puppet::Type.type(:gnupg_key).provide(:gnupg) do
     uri = URI.parse(URI.escape(resource[:key_source]))
     case uri.scheme
     when /https/
-      command = "wget -O- #{resource[:key_source]} | gpg --homedir #{resource[:gnupg_home]} --import"
+      command = "wget -O- #{resource[:key_source]} | gpg --no-tty --homedir #{resource[:gnupg_home]} --import"
     when /http/
-      command = "gpg --homedir #{resource[:gnupg_home]} --fetch-keys #{resource[:key_source]}"
+      command = "gpg --no-tty --homedir #{resource[:gnupg_home]} --fetch-keys #{resource[:key_source]}"
     when 'puppet'
       path = create_temporary_file user_id, puppet_content
-      command = "gpg --homedir #{resource[:gnupg_home]} --import #{path}"
+      command = "gpg --no-tty --homedir #{resource[:gnupg_home]} --import #{path}"
     end
     begin
       output = Puppet::Util::Execution.execute(command, :uid => user_id, :failonfail => true)
